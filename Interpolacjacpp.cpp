@@ -1,9 +1,54 @@
 // Interpolacjacpp.cpp: Okreœla punkt wejœcia dla aplikacji konsoli.
 //
 
+
+// Eliminacja Gaussa
+// Data: 15.02.2010
+// (C)2012 mgr Jerzy Wa³aszek
+//-----------------------------
+
 #include <iostream>
 #include <conio.h>
+#include <cmath>
 using namespace std;
+
+
+const double eps = 1e-12; // sta³a przybli¿enia zera
+
+// Funkcja realizuje algorytm eliminacji Gaussa
+//---------------------------------------------
+bool gauss(int n, double ** AB, double * X)
+{
+
+	int i, j, k;
+	double m, s;
+
+	// eliminacja wspó³czynników
+
+	for (i = 0; i < n - 1; i++)
+	{
+		for (j = i + 1; j < n; j++)
+		{
+			if (fabs(AB[i][i]) < eps) return false;
+			m = -AB[j][i] / AB[i][i];
+			for (k = i + 1; k <= n; k++)
+				AB[j][k] += m * AB[i][k];
+		}
+	}
+
+	// wyliczanie niewiadomych
+
+	for (i = n - 1; i >= 0; i--)
+	{
+		s = AB[i][n];
+		for (j = n - 1; j >= i + 1; j--)
+			s -= AB[i][j] * X[j];
+		if (fabs(AB[i][i]) < eps) return false;
+		X[i] = s / AB[i][i];
+	}
+	return true;
+}
+//------------------------------------------------------------//
 int silnia(int i)
 {
 	int sil=1;
@@ -99,7 +144,69 @@ double interpolacjaLagrangea(int ilosc_w, int tabx[], int taby[],double x_szukan
 
 	return wx;
 }
+void tworzenieTabeliDoGaussa(int tabx[], int taby[],int *tabPoch,double *AB[],int wielkoscTab)
+{
+	int poch = 0;
+	int ileAlf = 0;
 
+	for (int i = 0; i < wielkoscTab; i++)
+	{
+		if (i < wielkoscTab - 2)
+		{
+			int ileDodanychAlf = 0;
+			for (int j = 0; j <= wielkoscTab; j++)
+			{
+				if (j == wielkoscTab)
+				{
+					AB[i][j] = taby[i];
+				}else
+				if (j < 4)
+				{
+					AB[i][j] = pow(tabx[i], j);
+				}else
+				if (j>=4 && i>0 && ileAlf>ileDodanychAlf)
+				{
+					AB[i][j] = pow(tabx[i] - tabx[i + ileDodanychAlf], 3);
+				}else
+				{
+					AB[i][j] = 0;
+					ileAlf++;
+				}
+			}
+		}
+		if (i >= wielkoscTab - 2)
+		{
+			int ileDodanychAlf = 0;
+			for (int j = 0; j <= wielkoscTab; j++)
+			{
+				if (j == wielkoscTab)
+				{
+					AB[i][j] = tabPoch[poch];
+					poch++;
+				}else
+				if (j < 4 && j>0)
+				{
+					AB[i][j] = j*pow(tabx[poch*wielkoscTab-3], j - 1);
+				}else
+				if (j == 0)
+				{
+					AB[i][j] = 0;
+				}else
+				if (j >= 4 && poch==0)
+				{
+					AB[i][j] = 0;
+					ileAlf++;
+				}/*else
+				if (j >= 4 && poch == 1 && ileDodanychAlf<ileAlf)
+				{
+					ileDodanychAlf++;
+					AB[i][j] = 3*pow(tabx[i] - tabx[i + ileDodanychAlf], 2);
+				}*/
+			}
+		}
+	}
+
+}
 int main()
 {
 	int ilosc_w;
@@ -130,6 +237,33 @@ int main()
 	cout << "Newtona ilorazy dla x " << x_szukany << " y to " << interpolacjaNewtona1(tabx, taby, tabiloczyny, ilosc_w, x_szukany) << endl;
 	rozniceProgrwsywne(tabx, taby, rozProgTab, ilosc_w);
 	cout << "Newtona progrestwna dla x " << x_szukany << " y to " << interpolacjaNewtona2(tabx, taby, rozProgTab, ilosc_w, x_szukany) << endl;
+	
+	//-------------funkcje sklejane------------------//
+
+
+	// tworzymy macierze AB i X
+	int n = ilosc_w + 2;
+	double **AB = new double *[n];
+	double *X = new double[n];
+	for (int i = 0; i < n; i++)
+		AB[i] = new double[n + 1];
+	int tabelePoch[2];
+	for (int i = 0; i < 2; i++)
+	{
+		cout << "pierwsza pochodna\n";
+		cin >> tabelePoch[i];
+	}
+	tworzenieTabeliDoGaussa(tabx, taby, tabelePoch, AB, n);
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j <= n; j++)
+		{
+			cout << AB[i][j]<< " ";
+		}
+		cout << "\n";
+	}
+
+
 	getch();
 	return EXIT_SUCCESS;
 }
