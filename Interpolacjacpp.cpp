@@ -1,3 +1,4 @@
+
 // Interpolacjacpp.cpp: Okreœla punkt wejœcia dla aplikacji konsoli.
 //
 
@@ -15,8 +16,8 @@ using namespace std;
 
 const double eps = 1e-12; // sta³a przybli¿enia zera
 
-// Funkcja realizuje algorytm eliminacji Gaussa
-//---------------------------------------------
+						  // Funkcja realizuje algorytm eliminacji Gaussa
+						  //---------------------------------------------
 bool gauss(int n, double ** AB, double * X)
 {
 
@@ -51,10 +52,10 @@ bool gauss(int n, double ** AB, double * X)
 //------------------------------------------------------------//
 int silnia(int i)
 {
-	int sil=1;
+	int sil = 1;
 	for (int j = 1; j <= i; j++)
 	{
-			sil *= j;
+		sil *= j;
 	}
 	return sil;
 }
@@ -62,7 +63,7 @@ void rozniceProgrwsywne(int tabx[], int taby[], double *rozProgTab[], int ilosc_
 {
 	for (int i = 0; i < ilosc_w; i++)
 	{
-		for (int j = 0; j < ilosc_w-i; j++)
+		for (int j = 0; j < ilosc_w - i; j++)
 		{
 			if (i == 0)
 			{
@@ -70,24 +71,24 @@ void rozniceProgrwsywne(int tabx[], int taby[], double *rozProgTab[], int ilosc_
 			}
 			else
 			{
-				rozProgTab[i][j] = rozProgTab[i-1][j + 1] - rozProgTab[i-1][j];
+				rozProgTab[i][j] = rozProgTab[i - 1][j + 1] - rozProgTab[i - 1][j];
 			}
 		}
 	}
 }
-double interpolacjaNewtona2(int tabx[], int taby[], double *rozProgTab[], int ilosc_w,double x_szukany)
+double interpolacjaNewtona2(int tabx[], int taby[], double *rozProgTab[], int ilosc_w, double x_szukany)
 {
 	double wx = rozProgTab[0][0];
 	double h = tabx[1] - tabx[0];
 	for (int i = 1; i < ilosc_w; i++)
 	{
 		double wj = 1;
-		for (int j = 0; j <= i-1; j++)
+		for (int j = 0; j <= i - 1; j++)
 		{
 			wj *= (x_szukany - tabx[j]);
 		}
 		double pod = (silnia(i)*pow(h, i));
-		wx += (wj*(rozProgTab[i][0]/pod));
+		wx += (wj*(rozProgTab[i][0] / pod));
 	}
 	return wx;
 }
@@ -95,30 +96,30 @@ void ilorazyRoznicowe(int tabx[], int taby[], double *tabiloczyny[], int ilosc_w
 {
 	for (int i = 0; i < ilosc_w; i++)
 	{
-		for (int j = 0; j < ilosc_w-i; j++)
+		for (int j = 0; j < ilosc_w - i; j++)
 		{
 			if (i == 0)
 			{
-				tabiloczyny[0][j]= taby[j];
+				tabiloczyny[0][j] = taby[j];
 			}
 			else
 			{
-				tabiloczyny[i][j] = (tabiloczyny[i - 1][j + 1] - tabiloczyny[i - 1][j]) / (tabx[j+i] - tabx[j]);
+				tabiloczyny[i][j] = (tabiloczyny[i - 1][j + 1] - tabiloczyny[i - 1][j]) / (tabx[j + i] - tabx[j]);
 			}
 		}
 	}
 }
 
 
-double interpolacjaNewtona1(int tabx[], int taby[], double *tabiloczyny[], int ilosc_w,double x_szukany)
+double interpolacjaNewtona1(int tabx[], int taby[], double *tabiloczyny[], int ilosc_w, double x_szukany)
 {
 	double wx = 0;
 	double wj = 1;
 	wx = taby[0];
-	for (int i = 1; i < ilosc_w;i++)
+	for (int i = 1; i < ilosc_w; i++)
 	{
 		wj = 1;
-		for (int j = 0; j <= i-1; j++)
+		for (int j = 0; j <= i - 1; j++)
 		{
 			wj *= (x_szukany - tabx[j]);
 		}
@@ -128,7 +129,7 @@ double interpolacjaNewtona1(int tabx[], int taby[], double *tabiloczyny[], int i
 }
 
 
-double interpolacjaLagrangea(int ilosc_w, int tabx[], int taby[],double x_szukany)
+double interpolacjaLagrangea(int ilosc_w, int tabx[], int taby[], double x_szukany)
 {
 	double wx = 0;
 	for (int i = 0; i < ilosc_w; i++)
@@ -139,73 +140,90 @@ double interpolacjaLagrangea(int ilosc_w, int tabx[], int taby[],double x_szukan
 			if (i != j)
 				li *= (x_szukany - tabx[j]) / (tabx[i] - tabx[j]);
 		}
-		wx += taby[i]*li;
+		cout << taby[i] << "*" << li<<"="<< taby[i] * li <<"\n";
+		wx += taby[i] * li;
 	}
 
 	return wx;
 }
-void tworzenieTabeliDoGaussa(int tabx[], int taby[],int *tabPoch,double *AB[],int wielkoscTab)
+void tworzenieTabeliDoGaussa(int tabx[], int taby[], int *tabPoch, double *AB[], int wielkoscTab)
 {
-	int poch = 0;
-	int ileAlf = 0;
 
+	int poch = 0;
 	for (int i = 0; i < wielkoscTab; i++)
 	{
 		if (i < wielkoscTab - 2)
 		{
-			int ileDodanychAlf = 0;
 			for (int j = 0; j <= wielkoscTab; j++)
 			{
 				if (j == wielkoscTab)
 				{
 					AB[i][j] = taby[i];
-				}else
-				if (j < 4)
+				}
+				else if (j < 4)
 				{
 					AB[i][j] = pow(tabx[i], j);
 				}else
-				if (j>=4 && i>0 && ileAlf>ileDodanychAlf)
-				{
-					AB[i][j] = pow(tabx[i] - tabx[i + ileDodanychAlf], 3);
-				}else
 				{
 					AB[i][j] = 0;
-					ileAlf++;
 				}
 			}
 		}
-		if (i >= wielkoscTab - 2)
+		else
 		{
-			int ileDodanychAlf = 0;
 			for (int j = 0; j <= wielkoscTab; j++)
 			{
 				if (j == wielkoscTab)
 				{
 					AB[i][j] = tabPoch[poch];
 					poch++;
-				}else
-				if (j < 4 && j>0)
+				}
+				else
+				if (j < 4)
 				{
-					AB[i][j] = j*pow(tabx[poch*wielkoscTab-3], j - 1);
-				}else
-				if (j == 0)
-				{
-					AB[i][j] = 0;
-				}else
-				if (j >= 4 && poch==0)
+					AB[i][j] = j*pow(tabx[poch*(wielkoscTab - 3)], j - 1);
+				}
+				else
 				{
 					AB[i][j] = 0;
-					ileAlf++;
-				}/*else
-				if (j >= 4 && poch == 1 && ileDodanychAlf<ileAlf)
-				{
-					ileDodanychAlf++;
-					AB[i][j] = 3*pow(tabx[i] - tabx[i + ileDodanychAlf], 2);
-				}*/
+				}
 			}
 		}
 	}
 
+	for (int i = 1; i < wielkoscTab; i++)
+	{
+		if (i < wielkoscTab -2) {
+			for (int j = wielkoscTab - (wielkoscTab - 4); j < wielkoscTab; j++)
+			{
+				if(j-2<=i)
+				AB[i][j] = pow(tabx[i]-tabx[j-3], 3);
+			}
+		}else
+		{
+			for (int j = wielkoscTab - (wielkoscTab - 4); j < wielkoscTab; j++)
+			{
+				if(i=wielkoscTab-1)
+				AB[i][j]=3*pow(tabx[(wielkoscTab - 3)]-tabx[j-3],2);
+			}
+		}
+	}
+}
+double interpolacjaSklejanie(double x_szukany, double X[],int ilosc_w,int tabx[])
+{
+	double wynik = 0;
+	for (int i = 0; i < 4;i++)
+	{
+		wynik += (pow(x_szukany, i) * X[i]);
+	}
+	for (int i = 1; i < ilosc_w; i++)
+	{
+		if (x_szukany > tabx[i]) {
+			wynik += X[3 + i]*pow((x_szukany-tabx[i]),3);
+		}
+		else break;
+	}
+	return wynik;
 }
 int main()
 {
@@ -233,11 +251,11 @@ int main()
 	cout << "podaj dla jakiego x znalezc" << endl;
 	cin >> x_szukany;
 	cout << "Lagrange'a dla x " << x_szukany << " y to " << interpolacjaLagrangea(ilosc_w, tabx, taby, x_szukany) << endl;
-	ilorazyRoznicowe(tabx,taby,tabiloczyny,ilosc_w);
+	ilorazyRoznicowe(tabx, taby, tabiloczyny, ilosc_w);
 	cout << "Newtona ilorazy dla x " << x_szukany << " y to " << interpolacjaNewtona1(tabx, taby, tabiloczyny, ilosc_w, x_szukany) << endl;
 	rozniceProgrwsywne(tabx, taby, rozProgTab, ilosc_w);
 	cout << "Newtona progrestwna dla x " << x_szukany << " y to " << interpolacjaNewtona2(tabx, taby, rozProgTab, ilosc_w, x_szukany) << endl;
-	
+
 	//-------------funkcje sklejane------------------//
 
 
@@ -258,12 +276,16 @@ int main()
 	{
 		for (int j = 0; j <= n; j++)
 		{
-			cout << AB[i][j]<< " ";
+			cout<<AB[i][j] << " ";
 		}
 		cout << "\n";
 	}
-
-
+	gauss(n, AB, X);
+	for (int i = 0; i < n; i++)
+	{
+		cout << X[i] << " ";
+	}
+	cout << "\nMetoda sklejania dla x " << x_szukany << " y to " << interpolacjaSklejanie(x_szukany,X,ilosc_w,tabx)<< endl;
 	getch();
 	return EXIT_SUCCESS;
 }
