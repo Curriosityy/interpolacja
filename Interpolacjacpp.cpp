@@ -140,7 +140,6 @@ double interpolacjaLagrangea(int ilosc_w, int tabx[], int taby[], double x_szuka
 			if (i != j)
 				li *= (x_szukany - tabx[j]) / (tabx[i] - tabx[j]);
 		}
-		cout << taby[i] << "*" << li<<"="<< taby[i] * li <<"\n";
 		wx += taby[i] * li;
 	}
 
@@ -268,23 +267,12 @@ int main()
 	int tabelePoch[2];
 	for (int i = 0; i < 2; i++)
 	{
-		cout << "pierwsza pochodna\n";
 		cin >> tabelePoch[i];
 	}
 	tworzenieTabeliDoGaussa(tabx, taby, tabelePoch, AB, n);
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j <= n; j++)
-		{
-			cout<<AB[i][j] << " ";
-		}
-		cout << "\n";
-	}
+
 	gauss(n, AB, X);
-	for (int i = 0; i < n; i++)
-	{
-		cout << X[i] << " ";
-	}
+
 	cout << "\nMetoda sklejania dla x " << x_szukany << " y to " << interpolacjaSklejanie(x_szukany,X,ilosc_w,tabx)<< endl;
 	getch();
 	return EXIT_SUCCESS;
